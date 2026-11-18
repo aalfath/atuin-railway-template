@@ -40,13 +40,16 @@ if [ -n "$user" ] && [ -n "$pass" ]; then
       *duplicate*|*already*|*UNIQUE*|*unique*)
         log "account '$user' already exists; leaving its password unchanged"
         break ;;
+      *"not a valid username"*)
+        log "ADMIN_USERNAME '$user' is not valid: use only letters, digits and hyphens (-)"
+        exit 1 ;;
     esac
     if [ "$i" -ge 60 ]; then
       log "could not create account '$user' after $i tries:"
       printf '%s\n' "$out" | tail -n 5
       exit 1
     fi
-    [ "$i" -eq 1 ] && log "waiting for the database: $(printf '%s' "$out" | tail -n 1)"
+    [ "$i" -eq 1 ] && log "waiting for the database: $(printf '%s\n' "$out" | grep -m1 '^ *0:' | sed 's/^ *0: *//')"
     sleep 3
   done
 else
